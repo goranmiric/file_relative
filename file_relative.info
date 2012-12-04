@@ -1,0 +1,9 @@
+name = Field file relative path
+description = "Provide relative path for file and forcing user to download it."
+package = Files
+core = 7.x
+version = "7.x-1.0"
+
+dependencies[] = field
+dependencies[] = file
+files[] = file_relative.module

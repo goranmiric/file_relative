@@ -1,0 +1,61 @@
+<?php
+/**
+* @file
+* File relative path - dispaly field option.
+*
+*/
+function file_relative_menu() {
+  $items['download-file/%'] = array(
+    'title' => t('Download file'),
+    'page callback' => 'file_relative_download',
+    'page arguments' => array(1),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK
+  );
+  return $items;
+}
+
+function file_relative_download($fid){
+  $file = file_load($fid);
+
+  if (isset($file)) {
+    $file_url = file_create_url($file->uri);
+    $file_name = $file->filename;
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename='.basename($file_name));
+    header('Content-Transfer-Encoding: binary');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . $file->filesize);
+    ob_clean();
+    flush();
+    readfile($file_url);
+    exit;
+  }
+}
+
+
+function file_relative_field_formatter_info() {
+  return array(
+    'file_relative_path' => array(
+      'label' => t('Relative path'),
+      'field types' => array('file'),
+    )
+  );
+}
+/**
+* Implements hook_field_formatter_view().
+*/
+function file_relative_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  switch ($display['type']) {
+    case 'file_relative_path':
+      foreach ($items as $delta => $item) {
+        $element[$delta]['#markup'] = l(t('Download file'), 'download-file/'.$item['fid'], array('attributes' => array('title' => $item['filename'])));
+      }
+    break;
+  }
+  return $element;
+}
